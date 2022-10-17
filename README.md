@@ -29,11 +29,28 @@ start using the package.
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
+*<project_id> should be the reverse domain name identifier for the app.*
 
-```dart
-const like = 'sample';
+The Flathub manifest should be `<project_root>/packaging/linux/flatpak/<project_id>.json`
+
+The AppStream metadata should be `<project_root>/packaging/linux/<project_id>.metainfo.xml`
+
+### Enable package
+
+```shell
+dart pub global activate --source git https://github.com/Merrit/linux_packaging_updater.git
+```
+
+### Run the updater from project root
+
+```shell
+updater <project_id> <github_repository_name> <github_username>
+```
+
+Example:
+
+```shell
+updater codes.merritt.bargain unit_bargain_hunter merrit
 ```
 
 <!-- ## Additional information
