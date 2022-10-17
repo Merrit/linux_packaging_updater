@@ -15,7 +15,11 @@ void updateMetainfo(String projectId, GitHubInfo githubInfo) {
   final date = DateFormat('yyyy-MM-dd').format(publishDate!);
 
   final String releaseNotes = githubInfo.latestRelease.body ?? '';
-  final releaseNotesIterable = releaseNotes.split('\n');
+  final List<String> releaseNotesLines = releaseNotes
+      .split('\n')
+      // Strip links as Flathub disallows them.
+      .map((e) => e.replaceAll(RegExp(r'http\S*'), ''))
+      .toList();
 
   metainfo.findAllElements('release').first.replace(
         XmlElement(
@@ -35,7 +39,7 @@ void updateMetainfo(String projectId, GitHubInfo githubInfo) {
               XmlName('description'),
               [],
               [
-                for (var item in releaseNotesIterable)
+                for (var item in releaseNotesLines)
                   XmlElement(
                     XmlName('p'),
                     [],
