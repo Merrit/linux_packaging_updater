@@ -1,11 +1,13 @@
 import 'dart:io';
 
+import 'package:linux_packaging_updater/src/args/src/parser.dart';
 import 'package:linux_packaging_updater/updater.dart';
 
 Future<void> main(List<String> arguments) async {
-  projectId = arguments[0];
-  repository = arguments[1];
-  user = arguments[2];
+  final parsedArgs = parseArgs(arguments);
+  projectId = parsedArgs.projectId;
+  repository = parsedArgs.repository;
+  user = parsedArgs.user;
 
   final githubInfo = await GitHubInfo.fetch(
     projectId: projectId,
