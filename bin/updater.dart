@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:linux_packaging_updater/src/args/src/parser.dart';
+import 'package:linux_packaging_updater/src/logs/logs.dart';
 import 'package:linux_packaging_updater/updater.dart';
 
 Future<void> main(List<String> arguments) async {
@@ -8,6 +9,8 @@ Future<void> main(List<String> arguments) async {
   projectId = parsedArgs.projectId;
   repository = parsedArgs.repository;
   user = parsedArgs.user;
+
+  await LoggingManager.initialize(verbose: parsedArgs.verbose);
 
   final githubInfo = await GitHubInfo.fetch(
     projectId: projectId,
