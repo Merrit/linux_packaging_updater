@@ -4,9 +4,14 @@ import 'package:http/http.dart' as http;
 
 class GitHubInfo {
   final Release latestRelease;
+  final String headCommitSha;
   final Repository repo;
 
-  GitHubInfo._({required this.latestRelease, required this.repo});
+  GitHubInfo._({
+    required this.latestRelease,
+    required this.headCommitSha,
+    required this.repo,
+  });
 
   /// Retrieves the info for the latest release of this project.
   static Future<GitHubInfo> fetch({
@@ -18,6 +23,11 @@ class GitHubInfo {
     final repoSlug = RepositorySlug(user, repository);
     final latestRelease = await github.repositories.getLatestRelease(repoSlug);
     final repo = await github.repositories.getRepository(repoSlug);
+    final headCommitReference = await github.git.getReference(
+      repoSlug,
+      'heads/main',
+    );
+
     github.dispose();
 
     // latestRelease.body; release description if we want to update that as well
@@ -28,10 +38,14 @@ class GitHubInfo {
     if (isDraft || isPreRelease) {
       throw Exception('Release is draft or prerelease, expected published.');
     }
-    return GitHubInfo._(latestRelease: latestRelease, repo: repo);
+    return GitHubInfo._(
+      latestRelease: latestRelease,
+      headCommitSha: headCommitReference.object!.sha!,
+      repo: repo,
+    );
   }
 
-  ReleaseAsset? get linuxAssetName => latestRelease.assets?.firstWhereOrNull(
+  ReleaseAsset? get linuxAsset => latestRelease.assets?.firstWhereOrNull(
       (element) => element.name!.contains('-Linux-Portable.tar.gz'));
 
   /// The sha256sum for the Linux portable asset.
