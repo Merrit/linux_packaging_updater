@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:xml/xml.dart';
 
-import 'src.dart';
+import 'github/github_info.dart';
 
 /// Update the $projectId.metainfo.xml file with the
 /// date and version of the new release.
