@@ -34,21 +34,29 @@ class MetadataManager {
     final date = DateFormat('yyyy-MM-dd').format(publishDate!);
 
     final String releaseNotes = githubInfo.latestRelease.body ?? '';
-    final List<String> releaseNotesLines = releaseNotes
+    final List<String> releaseNotesLines = releaseNotes //
         .split('\n')
         .map((String line) {
-          // Strip links as Flathub disallows them.
-          line = line.replaceAll(RegExp(r'http\S*'), '');
-          // Remove HTML comments
-          line = line.replaceAll(RegExp(r'<!--.*-->'), '');
-          // Remove the full changelog link
-          line = line.replaceAll(RegExp(r'\*\*Full Changelog.*'), '');
-          return line;
-        })
-        // Remove blank lines
-        .where((line) => line.trim() != '')
-        .toList();
+      // Strip links as Flathub disallows them.
+      line = line.replaceAll(RegExp(r'http\S*'), '');
+      // Remove HTML comments
+      line = line.replaceAll(RegExp(r'<!--.*-->'), '');
+      // Remove the full changelog link
+      line = line.replaceAll(RegExp(r'\*\*Full Changelog.*'), '');
+      return line;
+    }).toList();
 
+    // Remove leading blank lines
+    while (releaseNotesLines[0].trim() == '') {
+      releaseNotesLines.removeAt(0);
+    }
+
+    // Remove trailing blank lines
+    while (releaseNotesLines.last.trim() == '') {
+      releaseNotesLines.removeLast();
+    }
+
+    // Update the xml
     metainfo.findAllElements('release').first.replace(
           XmlElement(
             XmlName('release'),
