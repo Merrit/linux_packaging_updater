@@ -3,7 +3,7 @@ import 'package:linux_packaging_updater/src/environment.dart';
 import 'package:linux_packaging_updater/src/github/github_info.dart';
 import 'package:linux_packaging_updater/src/logs/logs.dart';
 import 'package:linux_packaging_updater/src/manifest_manager.dart';
-import 'package:linux_packaging_updater/src/update_metainfo.dart';
+import 'package:linux_packaging_updater/src/metadata_manager.dart';
 
 Future<void> main(List<String> arguments) async {
   final parsedArgs = parseArgs(arguments);
@@ -23,9 +23,8 @@ Future<void> main(List<String> arguments) async {
     throw Exception('Asset not found.');
   }
 
-  await _updateManifest(githubInfo);
-
-  updateMetainfo(projectId, githubInfo);
+  if (parsedArgs.updateManifest) await _updateManifest(githubInfo);
+  if (parsedArgs.updateMetadata) await _updateMetadata(githubInfo);
 }
 
 Future<void> _updateManifest(GitHubInfo gitHubInfo) async {
@@ -37,4 +36,15 @@ Future<void> _updateManifest(GitHubInfo gitHubInfo) async {
   final yamlString = await manifestManager.read();
   final updatedManifestString = await manifestManager.update(yamlString);
   await manifestManager.write(updatedManifestString);
+}
+
+Future<void> _updateMetadata(GitHubInfo gitHubInfo) async {
+  final metadataManager = MetadataManager(
+    projectId: projectId,
+    githubInfo: gitHubInfo,
+  );
+
+  final metadataString = await metadataManager.read();
+  final updatedMetadataString = metadataManager.update(metadataString);
+  await metadataManager.write(updatedMetadataString);
 }
