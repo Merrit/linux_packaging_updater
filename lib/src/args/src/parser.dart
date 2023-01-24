@@ -20,6 +20,8 @@ Args parseArgs(List<String> args) {
   String? projectId;
   String? repository;
   String? user;
+  bool? updateManifest;
+  bool? updateMetadata;
   bool? verbose;
 
   _parser
@@ -37,6 +39,18 @@ Args parseArgs(List<String> args) {
       'user',
       mandatory: true,
       callback: (String? value) => user = value,
+    )
+    ..addFlag(
+      'manifest',
+      defaultsTo: false,
+      callback: (bool value) => updateManifest = value,
+      help: 'Update the Flatpak manifest file',
+    )
+    ..addFlag(
+      'metadata',
+      defaultsTo: false,
+      callback: (bool value) => updateMetadata = value,
+      help: 'Update the AppStream metadata file',
     )
     ..addFlag(
       'verbose',
@@ -60,6 +74,8 @@ Args parseArgs(List<String> args) {
     projectId: projectId!,
     repository: repository!,
     user: user!,
+    updateManifest: updateManifest ?? false,
+    updateMetadata: updateMetadata ?? false,
     verbose: verbose ?? false,
   );
 }
