@@ -33,28 +33,32 @@ class MetadataManager {
     final publishDate = githubInfo.latestRelease.publishedAt;
     final date = DateFormat('yyyy-MM-dd').format(publishDate!);
 
-    final String releaseNotes = githubInfo.latestRelease.body ?? '';
-    final List<String> releaseNotesLines = releaseNotes //
-        .split('\n')
-        .map((String line) {
-      // Strip links as Flathub disallows them.
-      line = line.replaceAll(RegExp(r'http\S*'), '');
-      // Remove HTML comments
-      line = line.replaceAll(RegExp(r'<!--.*-->'), '');
-      // Remove the full changelog link
-      line = line.replaceAll(RegExp(r'\*\*Full Changelog.*'), '');
-      return line;
-    }).toList();
+    // Disable adding changelog / release notes, as flathub is invalidating the
+    // metadata with even medium sized changelogs:
+    // • style-invalid : Too many <p> tags for a good description [35/15]
 
-    // Remove leading blank lines
-    while (releaseNotesLines[0].trim() == '') {
-      releaseNotesLines.removeAt(0);
-    }
+    // final String releaseNotes = githubInfo.latestRelease.body ?? '';
+    // final List<String> releaseNotesLines = releaseNotes //
+    //     .split('\n')
+    //     .map((String line) {
+    //   // Strip links as Flathub disallows them.
+    //   line = line.replaceAll(RegExp(r'http\S*'), '');
+    //   // Remove HTML comments
+    //   line = line.replaceAll(RegExp(r'<!--.*-->'), '');
+    //   // Remove the full changelog link
+    //   line = line.replaceAll(RegExp(r'\*\*Full Changelog.*'), '');
+    //   return line;
+    // }).toList();
 
-    // Remove trailing blank lines
-    while (releaseNotesLines.last.trim() == '') {
-      releaseNotesLines.removeLast();
-    }
+    // // Remove leading blank lines
+    // while (releaseNotesLines[0].trim() == '') {
+    //   releaseNotesLines.removeAt(0);
+    // }
+
+    // // Remove trailing blank lines
+    // while (releaseNotesLines.last.trim() == '') {
+    //   releaseNotesLines.removeLast();
+    // }
 
     // Update the xml
     metainfo.findAllElements('release').first.replace(
@@ -75,13 +79,12 @@ class MetadataManager {
                 XmlName('description'),
                 [],
                 [
-                  for (var item in releaseNotesLines)
-                    XmlElement(
-                      XmlName('p'),
-                      [],
-                      [XmlText(item)],
-                    ),
-                  // XmlText(releaseNotes),
+                  // for (var item in releaseNotesLines)
+                  //   XmlElement(
+                  //     XmlName('p'),
+                  //     [],
+                  //     [XmlText(item)],
+                  //   ),
                 ],
               ),
             ],
