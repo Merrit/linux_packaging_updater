@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:xml/xml.dart';
 
 import 'github/github_info.dart';
-import 'logs/logs.dart';
 
 class MetadataManager {
   final String projectId;
@@ -24,26 +23,6 @@ class MetadataManager {
   Future<void> write(String metadataString) async {
     final metainfoFile = File('packaging/linux/$projectId.metainfo.xml');
     await metainfoFile.writeAsString(metadataString);
-  }
-
-  /// Validate the metadata file.
-  Future<void> validate() async {
-    final result = await Process.run(
-      'flatpak',
-      [
-        'run',
-        'org.freedesktop.appstream-glib',
-        'validate',
-        'packaging/linux/$projectId.metainfo.xml',
-      ],
-    );
-
-    if (result.stderr != '') {
-      log.e('Validation of metadata file failed: ${result.stderr}');
-      exit(1);
-    } else {
-      log.v('Validated metadata file: ${result.stdout}');
-    }
   }
 
   /// Update the $projectId.metainfo.xml file with the

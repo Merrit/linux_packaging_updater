@@ -47,5 +47,4 @@ Future<void> _updateMetadata(GitHubInfo gitHubInfo) async {
   final metadataString = await metadataManager.read();
   final updatedMetadataString = metadataManager.update(metadataString);
   await metadataManager.write(updatedMetadataString);
-  await metadataManager.validate();
 }
