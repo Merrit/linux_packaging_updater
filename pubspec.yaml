@@ -13,7 +13,7 @@ dependencies:
   http: ^0.13.4
   intl: ^0.18.0
   logger: ^1.1.0
-  xml: ^6.2.2
+  xml: ^5.3.1
   yaml: ^3.1.1
   yaml_edit: ^2.0.3
 
