@@ -1,3 +1,4 @@
+import 'package:github/github.dart';
 import 'package:linux_packaging_updater/src/environment.dart';
 import 'package:linux_packaging_updater/src/github/github_info.dart';
 import 'package:linux_packaging_updater/src/logs/logs.dart';
@@ -6,11 +7,13 @@ import 'package:logger/logger.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
+import 'package:xml/xml.dart';
 
 import 'fakes.dart';
 
 @GenerateNiceMocks(<MockSpec>[
   MockSpec<GitHubInfo>(),
+  MockSpec<Release>(),
 ])
 import 'metadata_manager_test.mocks.dart';
 
@@ -105,6 +108,32 @@ void main() {
       expect(updatedMetadataString == kExampleMetadata, false);
       expect(updatedMetadataString.contains('<!-- Release notes'), false);
       expect(updatedMetadataString.contains('**Full Changelog'), false);
+    });
+
+    test('update() adds new release to list of releases', () async {
+      final release = MockRelease();
+
+      when(release.tagName).thenReturn('v3.1.0');
+      when(release.publishedAt).thenReturn(DateTime.tryParse('2024-03-01 23:41:33.000Z'));
+      when(gitHubInfo.latestRelease).thenReturn(release);
+
+      final metadataManager = MetadataManager(
+        githubInfo: gitHubInfo,
+        projectId: projectId,
+      );
+
+      final updatedMetadataString = metadataManager.update(kExampleMetadata);
+      final metainfo = XmlDocument.parse(updatedMetadataString);
+
+      final releases = metainfo.findAllElements('release');
+      final latestRelease = releases.first;
+
+      expect(latestRelease.getAttribute('version'), '3.1.0');
+      expect(latestRelease.getAttribute('date'), '2024-03-01');
+
+      final previousRelease = releases.elementAt(1);
+      expect(previousRelease.getAttribute('version'), '2.9.2');
+      expect(previousRelease.getAttribute('date'), '2023-01-18');
     });
   });
 }

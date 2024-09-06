@@ -60,36 +60,41 @@ class MetadataManager {
     //   releaseNotesLines.removeLast();
     // }
 
-    // Update the xml
-    metainfo.findAllElements('release').first.replace(
-          XmlElement(
-            XmlName('release'),
-            [
-              XmlAttribute(
-                XmlName('version'),
-                githubInfo.latestRelease.tagName!.substring(1),
-              ),
-              XmlAttribute(
-                XmlName('date'),
-                date,
-              ),
-            ],
-            [
-              XmlElement(
-                XmlName('description'),
-                [],
-                [
-                  // for (var item in releaseNotesLines)
-                  //   XmlElement(
-                  //     XmlName('p'),
-                  //     [],
-                  //     [XmlText(item)],
-                  //   ),
-                ],
-              ),
-            ],
-          ),
-        );
+    // Add the new release to the list of releases
+    // Find the `releases` element
+    final releases = metainfo.findAllElements('releases').first;
+
+    // Create the new release element
+    final newRelease = XmlElement(
+      XmlName('release'),
+      [
+        XmlAttribute(
+          XmlName('version'),
+          githubInfo.latestRelease.tagName!.substring(1),
+        ),
+        XmlAttribute(
+          XmlName('date'),
+          date,
+        ),
+      ],
+      [
+        XmlElement(
+          XmlName('description'),
+          [],
+          [
+            // for (var item in releaseNotesLines)
+            //   XmlElement(
+            //     XmlName('p'),
+            //     [],
+            //     [XmlText(item)],
+            //   ),
+          ],
+        ),
+      ],
+    );
+
+    // Add the new release to the list of releases
+    releases.children.insert(0, newRelease);
 
     return metainfo.toXmlString(pretty: true);
   }
