@@ -15,12 +15,12 @@ class LoggingManager {
   static Future<LoggingManager> initialize({required bool verbose}) async {
     log = Logger(
       filter: ProductionFilter(),
-      level: (verbose) ? Level.verbose : Level.warning,
+      level: (verbose) ? Level.trace : Level.warning,
       output: ConsoleOutput(),
       printer: PrefixPrinter(PrettyPrinter(colors: true)),
     );
 
-    log.v('Logger initialized.');
+    log.t('Logger initialized.');
 
     return LoggingManager._();
   }

@@ -60,7 +60,7 @@ modules:
 late GitHubInfo gitHubInfo;
 
 void main() {
-  log = Logger(level: Level.nothing);
+  log = Logger(level: Level.off);
 
   projectId = 'codes.merritt.Nyrna';
   repository = 'nyrna';
