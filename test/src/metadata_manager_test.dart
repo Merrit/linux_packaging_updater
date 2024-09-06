@@ -3,10 +3,16 @@ import 'package:linux_packaging_updater/src/github/github_info.dart';
 import 'package:linux_packaging_updater/src/logs/logs.dart';
 import 'package:linux_packaging_updater/src/metadata_manager.dart';
 import 'package:logger/logger.dart';
-import 'package:mocktail/mocktail.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
 import 'fakes.dart';
+
+@GenerateNiceMocks(<MockSpec>[
+  MockSpec<GitHubInfo>(),
+])
+import 'metadata_manager_test.mocks.dart';
 
 const kExampleMetadata = '''
 <?xml version="1.0" encoding="UTF-8"?>
@@ -79,11 +85,11 @@ void main() {
 
   setUp(() {
     gitHubInfo = MockGitHubInfo();
-    when(() => gitHubInfo.latestRelease).thenReturn(FakeRelease());
+    when(gitHubInfo.latestRelease).thenReturn(FakeRelease());
   });
 
   group('MetadataManager:', () {
-    test('update', () async {
+    test('update() does not add full changelog', () async {
       expect(
         gitHubInfo.latestRelease.body!.contains('<!-- Release notes'),
         true,

@@ -1,14 +1,22 @@
+import 'package:github/github.dart';
 import 'package:linux_packaging_updater/src/environment.dart';
 import 'package:linux_packaging_updater/src/github/github_info.dart';
 import 'package:linux_packaging_updater/src/logs/logs.dart';
 import 'package:linux_packaging_updater/src/manifest_manager.dart';
 import 'package:logger/logger.dart';
-import 'package:mocktail/mocktail.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 import 'package:yaml/yaml.dart';
 import 'package:yaml_edit/yaml_edit.dart';
 
 import 'fakes.dart';
+
+@GenerateNiceMocks(<MockSpec>[
+  MockSpec<GitHubInfo>(),
+  MockSpec<Repository>(),
+])
+import 'manifest_manager_test.mocks.dart';
 
 const kExampleManifest = r'''
 # yaml-language-server: $schema=https://raw.githubusercontent.com/flatpak/flatpak-builder/main/data/flatpak-manifest.schema.json
@@ -68,17 +76,16 @@ void main() {
 
   setUp(() {
     gitHubInfo = MockGitHubInfo();
-    when(() => gitHubInfo.latestRelease).thenReturn(FakeRelease());
-    when(() => gitHubInfo.linuxAsset).thenReturn(FakeReleaseAsset());
-    when(() => gitHubInfo.linuxAssetHash()).thenAnswer((_) async =>
-        '6k754264e83fe96175adc0474ccced9c0d281190d3137ac774fb4dcbe0b6dcc7');
+    when(gitHubInfo.latestRelease).thenReturn(FakeRelease());
+    when(gitHubInfo.linuxAsset).thenReturn(FakeReleaseAsset());
+    when(gitHubInfo.linuxAssetHash()).thenAnswer(
+        (_) async => '6k754264e83fe96175adc0474ccced9c0d281190d3137ac774fb4dcbe0b6dcc7');
 
     final repo = MockRepository();
-    when(() => repo.cloneUrl).thenReturn('https://github.com/Merrit/nyrna.git');
+    when(repo.cloneUrl).thenReturn('https://github.com/Merrit/nyrna.git');
 
-    when(() => gitHubInfo.repo).thenReturn(repo);
-    when(() => gitHubInfo.headCommitSha)
-        .thenReturn('j73511503b4ff831f9e9310c2dcea64b5f8573kj');
+    when(gitHubInfo.repo).thenReturn(repo);
+    when(gitHubInfo.headCommitSha).thenReturn('j73511503b4ff831f9e9310c2dcea64b5f8573kj');
   });
 
   group('Manifest:', () {
@@ -97,8 +104,7 @@ void main() {
       final int appModuleIndex = modulesLength - 1;
       final assetMap =
           (yaml.parseAt(['modules', appModuleIndex, 'sources', 0])) as YamlMap;
-      final gitMap =
-          (yaml.parseAt(['modules', appModuleIndex, 'sources', 1])) as YamlMap;
+      final gitMap = (yaml.parseAt(['modules', appModuleIndex, 'sources', 1])) as YamlMap;
       expect(assetMap['url'], gitHubInfo.linuxAsset!.browserDownloadUrl);
       expect(assetMap['sha256'], await gitHubInfo.linuxAssetHash());
       expect(gitMap['url'], gitHubInfo.repo.cloneUrl);

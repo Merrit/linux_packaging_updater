@@ -1,10 +1,5 @@
 import 'package:github/github.dart';
-import 'package:linux_packaging_updater/src/github/github_info.dart';
-import 'package:mocktail/mocktail.dart';
-
-class MockGitHubInfo extends Mock implements GitHubInfo {}
-
-class MockRepository extends Mock implements Repository {}
+import 'package:mockito/mockito.dart';
 
 class FakeReleaseAsset extends Fake implements ReleaseAsset {
   @override
