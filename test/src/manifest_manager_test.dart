@@ -14,6 +14,7 @@ import 'fakes.dart';
 
 @GenerateNiceMocks(<MockSpec>[
   MockSpec<GitHubInfo>(),
+  MockSpec<Release>(),
   MockSpec<Repository>(),
 ])
 import 'manifest_manager_test.mocks.dart';
@@ -66,6 +67,7 @@ modules:
 ''';
 
 late GitHubInfo gitHubInfo;
+late Release release;
 
 void main() {
   log = Logger(level: Level.off);
@@ -75,8 +77,14 @@ void main() {
   user = 'merrit';
 
   setUp(() {
+    release = MockRelease();
+    when(release.publishedAt).thenReturn(FakeRelease.publishedAt);
+    when(release.htmlUrl).thenReturn(FakeRelease.htmlUrl);
+    when(release.tagName).thenReturn(FakeRelease.tagName);
+    when(release.body).thenReturn(FakeRelease.body);
+
     gitHubInfo = MockGitHubInfo();
-    when(gitHubInfo.latestRelease).thenReturn(FakeRelease());
+    when(gitHubInfo.latestRelease).thenReturn(release);
     when(gitHubInfo.linuxAsset).thenReturn(FakeReleaseAsset());
     when(gitHubInfo.linuxAssetHash()).thenAnswer(
         (_) async => '6k754264e83fe96175adc0474ccced9c0d281190d3137ac774fb4dcbe0b6dcc7');

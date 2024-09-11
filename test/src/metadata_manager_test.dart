@@ -78,6 +78,7 @@ https://www.freedesktop.org/software/appstream/metainfocreator/#/
 ''';
 
 late GitHubInfo gitHubInfo;
+late Release release;
 
 void main() {
   log = Logger(level: Level.off);
@@ -87,8 +88,14 @@ void main() {
   user = 'merrit';
 
   setUp(() {
+    release = MockRelease();
+    when(release.publishedAt).thenReturn(FakeRelease.publishedAt);
+    when(release.htmlUrl).thenReturn(FakeRelease.htmlUrl);
+    when(release.tagName).thenReturn(FakeRelease.tagName);
+    when(release.body).thenReturn(FakeRelease.body);
+
     gitHubInfo = MockGitHubInfo();
-    when(gitHubInfo.latestRelease).thenReturn(FakeRelease());
+    when(gitHubInfo.latestRelease).thenReturn(release);
   });
 
   group('MetadataManager:', () {
@@ -134,6 +141,24 @@ void main() {
       final previousRelease = releases.elementAt(1);
       expect(previousRelease.getAttribute('version'), '2.9.2');
       expect(previousRelease.getAttribute('date'), '2023-01-18');
+    });
+
+    test('new release includes link to detailed release notes', () async {
+      final metadataManager = MetadataManager(
+        githubInfo: gitHubInfo,
+        projectId: projectId,
+      );
+
+      final updatedMetadataString = metadataManager.update(kExampleMetadata);
+      final metainfo = XmlDocument.parse(updatedMetadataString);
+
+      final releases = metainfo.findAllElements('releases').first;
+      final newRelease = releases.findElements('release').first;
+
+      final releaseNotesLink = newRelease.findElements('url').first;
+      expect(releaseNotesLink.getAttribute('type'), 'details');
+      expect(releaseNotesLink.text, release.htmlUrl);
+      print(metainfo.toXmlString(pretty: true));
     });
   });
 }

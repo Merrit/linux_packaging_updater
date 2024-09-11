@@ -7,9 +7,8 @@ class FakeReleaseAsset extends Fake implements ReleaseAsset {
       'https://github.com/Merrit/nyrna/releases/download/v2.9.3/Nyrna-Linux-Portable.tar.gz';
 }
 
-class FakeRelease extends Fake implements Release {
-  @override
-  String? get body => '''
+abstract class FakeRelease {
+  static String body = '''
 <!-- Release notes generated using configuration in .github/release.yml at v2.9.3 -->
 
 ## Bug Fixes
@@ -32,9 +31,9 @@ class FakeRelease extends Fake implements Release {
 **Full Changelog**: https://github.com/Merrit/nyrna/compare/v2.9.2...v2.9.3
 ''';
 
-  @override
-  DateTime? get publishedAt => DateTime.tryParse('2023-01-23 23:41:33.000Z');
+  static String htmlUrl = 'https://github.com/merrit/nyrna/releases/v2.9.3';
 
-  @override
-  String? get tagName => 'v2.9.3';
+  static DateTime? publishedAt = DateTime.tryParse('2023-01-23 23:41:33.000Z');
+
+  static String tagName = 'v2.9.3';
 }

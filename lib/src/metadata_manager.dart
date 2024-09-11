@@ -78,6 +78,21 @@ class MetadataManager {
         ),
       ],
       [
+        // Link to detailed release notes
+        // <url type="details">https://example.org/changelog.html#version_1.0.1</url>
+        if (githubInfo.latestRelease.htmlUrl != null)
+          XmlElement(
+            XmlName('url'),
+            [
+              XmlAttribute(
+                XmlName('type'),
+                'details',
+              ),
+            ],
+            [
+              XmlText(githubInfo.latestRelease.htmlUrl!),
+            ],
+          ),
         XmlElement(
           XmlName('description'),
           [],
