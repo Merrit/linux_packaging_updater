@@ -157,7 +157,7 @@ void main() {
 
       final releaseNotesLink = newRelease.findElements('url').first;
       expect(releaseNotesLink.getAttribute('type'), 'details');
-      expect(releaseNotesLink.text, release.htmlUrl);
+      expect(releaseNotesLink.innerText, release.htmlUrl);
       print(metainfo.toXmlString(pretty: true));
     });
   });
