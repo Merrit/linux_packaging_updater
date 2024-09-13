@@ -99,13 +99,7 @@ void main() {
   });
 
   group('MetadataManager:', () {
-    test('update() does not add full changelog', () async {
-      expect(
-        gitHubInfo.latestRelease.body!.contains('<!-- Release notes'),
-        true,
-      );
-      expect(gitHubInfo.latestRelease.body!.contains('**Full Changelog'), true);
-
+    test('does not add GitHub changelog notice lines', () async {
       final metadataManager = MetadataManager(
         githubInfo: gitHubInfo,
         projectId: projectId,
@@ -117,7 +111,7 @@ void main() {
       expect(updatedMetadataString.contains('**Full Changelog'), false);
     });
 
-    test('update() adds new release to list of releases', () async {
+    test('adds new release to list of releases', () async {
       final release = MockRelease();
 
       when(release.tagName).thenReturn('v3.1.0');
@@ -158,7 +152,42 @@ void main() {
       final releaseNotesLink = newRelease.findElements('url').first;
       expect(releaseNotesLink.getAttribute('type'), 'details');
       expect(releaseNotesLink.innerText, release.htmlUrl);
-      print(metainfo.toXmlString(pretty: true));
+    });
+
+    test('release notes are added to the new release', () async {
+      final metadataManager = MetadataManager(
+        githubInfo: gitHubInfo,
+        projectId: projectId,
+      );
+
+      final updatedMetadataString = metadataManager.update(kExampleMetadata);
+      final metainfo = XmlDocument.parse(updatedMetadataString);
+
+      final releases = metainfo.findAllElements('releases').first;
+      final newRelease = releases.findElements('release').first;
+
+      final description = newRelease.findElements('description').first;
+
+      // Release must be added as HTML
+      const expectedReleaseNotes = '''
+<description>
+  <p>A few new features and improvements in this release:</p>
+  <p>Improvements</p>
+  <ul>
+    <li>Updated Italian translations.</li>
+  </ul>
+  <p>Bug Fixes</p>
+  <ul>
+    <li>Fixed an issue where the settings page was not scrollable.</li>
+    <li>Fixed an issue with app icon alignment and shadows.</li>
+  </ul>
+  <p>Documentation</p>
+  <ul>
+    <li>Mentioned Ctrl+F shortcut in README.</li>
+  </ul>
+</description>''';
+
+      expect(description.toXmlString(pretty: true), expectedReleaseNotes);
     });
   });
 }
