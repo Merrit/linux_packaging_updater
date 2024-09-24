@@ -178,7 +178,24 @@ class MetadataManager {
   /// ```
   /// Added a debug menu to improve debugging.
   /// ```
+  ///
+  /// or
+  ///
+  /// ```
+  /// Added hint to search bar for the keyboard shortcut. [#109](https://github.com/Merrit/feeling_finder/pull/109) ([f15c35b](https://github.com/Merrit/feeling_finder/commit/f15c35b43ebe13008425ada01f6fa44dbfab4ed6))
+  /// ```
+  ///
+  /// becomes:
+  /// ```
+  /// Added hint to search bar for the keyboard shortcut.
+  /// ```
   String _removeGitHubAttributions(String text) {
-    return text.replaceAll(RegExp(r'\[.*?\]\(.*?\)'), '');
+    // Remove any text that is enclosed in square brackets and parentheses.
+    text = text.replaceAll(RegExp(r'\[.*?\]\(.*?\)'), '');
+    // Remove any trailing empty parentheses.
+    text = text.replaceAll(RegExp(r'\(\s*\)'), '');
+    // Remove any trailing whitespace.
+    text = text.trim();
+    return text;
   }
 }

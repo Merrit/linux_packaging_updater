@@ -189,5 +189,74 @@ void main() {
 
       expect(description.toXmlString(pretty: true), expectedReleaseNotes);
     });
+
+    /// Ensure that trailing parentheses are stripped from release notes.
+    ///
+    /// These will be from the Markdown links to the commits and PRs.
+    ///
+    /// For example:
+    ///
+    /// ```
+    /// Added hint to search bar for the keyboard shortcut. [#109](https://github.com/Merrit/feeling_finder/pull/109) ([f15c35b](https://github.com/Merrit/feeling_finder/commit/f15c35b43ebe13008425ada01f6fa44dbfab4ed6))
+    /// ```
+    ///
+    /// becomes:
+    /// ```
+    /// Added hint to search bar for the keyboard shortcut.
+    /// ```
+    ///
+    /// and not:
+    ///
+    /// ```
+    /// Added hint to search bar for the keyboard shortcut. ()
+    /// ```
+    test('release notes strip trailing parentheses', () async {
+      when(release.publishedAt).thenReturn(DateTime.tryParse('2024-09-23 19:11:33.000Z'));
+      when(release.htmlUrl)
+          .thenReturn('https://github.com/Merrit/feeling_finder/releases/tag/v1.8.0');
+      when(release.tagName).thenReturn('v1.8.0');
+      when(release.body).thenReturn('''
+## Features
+- **Linux**: Launching a second app instance toggles window visibility. [#109](https://github.com/Merrit/feeling_finder/pull/109) ([7ed659e](https://github.com/Merrit/feeling_finder/commit/7ed659ea887a5bec3c65293f02dbb7aefdac45a3))
+- **Linux**: Added instructions for keyboard shortcut on Wayland. [#109](https://github.com/Merrit/feeling_finder/pull/109) ([286b824](https://github.com/Merrit/feeling_finder/commit/286b824781fe081fdd2ad6caa21e1871574120e9))
+- Added hint to search bar for the keyboard shortcut. [#109](https://github.com/Merrit/feeling_finder/pull/109) ([f15c35b](https://github.com/Merrit/feeling_finder/commit/f15c35b43ebe13008425ada01f6fa44dbfab4ed6))
+
+## Bug Fixes
+- Changed the search hint text to just 'Search', until type-to-search can be properly implemented. [#109](https://github.com/Merrit/feeling_finder/pull/109) ([a7e42c2](https://github.com/Merrit/feeling_finder/commit/a7e42c24ec9127ad4d7f0b9bc8e7b9dead23d152))
+- Fixed an issue with missing window icons in Wayland. [#109](https://github.com/Merrit/feeling_finder/pull/109) ([908f360](https://github.com/Merrit/feeling_finder/commit/908f3601c90b8ccb89c2de0d0d00d884cd455c87))
+
+## Other Changes
+- Miscellaneous code cleanup, updates, and improvements.''');
+
+      final metadataManager = MetadataManager(
+        githubInfo: gitHubInfo,
+        projectId: projectId,
+      );
+
+      final updatedMetadataString = metadataManager.update(kExampleMetadata);
+      final metainfo = XmlDocument.parse(updatedMetadataString);
+
+      final releases = metainfo.findAllElements('releases').first;
+      final newRelease = releases.findElements('release').first;
+
+      final description = newRelease.findElements('description').first;
+
+      // Release must be added as HTML
+      const expectedReleaseNotes = '''
+<description>
+  <p>Features</p>
+  <ul>
+    <li>Linux: Launching a second app instance toggles window visibility.</li>
+    <li>Linux: Added instructions for keyboard shortcut on Wayland.</li>
+    <li>Added hint to search bar for the keyboard shortcut.</li>
+  </ul>
+  <p>Bug Fixes</p>
+  <ul>
+    <li>Changed the search hint text to just 'Search', until type-to-search can be properly implemented.</li>
+    <li>Fixed an issue with missing window icons in Wayland.</li>
+  </ul>
+</description>''';
+      expect(description.toXmlString(pretty: true), expectedReleaseNotes);
+    });
   });
 }
